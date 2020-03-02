@@ -58,10 +58,12 @@ jobs:
         sudo -E apt-get clean
     - name: Clone source code
       env: 
-        REPO_URL: https://github.com/coolsnowwolf/lede
-        REPO_BRANCH: master
-      run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
-
+        REPO_URL: https://github.com/Lienol/openwrt
+        REPO_BRANCH: dev-lean-lede
+      run: | 
+        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        git clone https://github.com/jefferymvp/luci-app-koolproxyR openwrt/package/luci-app-koolproxy-R
+        git clone https://github.com/niceguy3-31/backup.git openwrt/package
     - name: Update & Install feeds
       working-directory: ./openwrt
       run: |
