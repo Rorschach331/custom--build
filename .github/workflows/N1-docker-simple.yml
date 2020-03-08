@@ -1,9 +1,4 @@
-#=================================================
-# Description: Build OpenWrt using GitHub Actions
-# Lisence: MIT
-# Author: eSirPlayground
-# Youtube Channel: https://goo.gl/fvkdwm 
-#=================================================
+
 
 name: N1_Operwrt_Docker_Simple
 
@@ -18,8 +13,8 @@ on:
   schedule:
     - cron: 0 21 * * *
   
-  watch:
-    types: [started]
+  #watch:
+    #types: [started]
 
 jobs:
   build:
