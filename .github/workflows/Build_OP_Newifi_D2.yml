@@ -98,7 +98,8 @@ jobs:
           find openwrt/bin/targets/ -name "*sysupgrade*bin*" | xargs -i mv -f {} ./artifact/
           #find openwrt/bin/targets/ -name "*combined*img*" | xargs -i mv -f {} ./artifact/
           #find openwrt/bin/targets/ -name "*rootfs*tar.gz*" | xargs -i mv -f {} ./artifact/
-          find openwrt/bin/targets/ -name "sha256sums|config.seed" | xargs -i mv -f {} ./artifact/
+          find openwrt/bin/targets/ -name "sha256sums" | xargs -i mv -f {} ./artifact/
+          find openwrt/bin/targets/ -name "config.seed" | xargs -i mv -f {} ./artifact/
           ls -lh ./artifact/
     - name : Upload artifact
       uses: actions/upload-artifact@master
