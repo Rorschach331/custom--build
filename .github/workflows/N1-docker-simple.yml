@@ -59,13 +59,13 @@ jobs:
         git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
         git clone https://github.com/niceguy3-31/luci-app-koolproxy.git openwrt/package/luci-app-koolproxy
         git clone https://github.com/tty228/luci-app-serverchan.git openwrt/package/luci-app-serverchan
+        git clone https://github.com/niceguy3-31/luci-app-koolproxyR.git openwrt/package/luci-app-koolproxyR
         git clone https://github.com/niceguy3-31/backup.git smartdns
         mv smartdns/* openwrt/package
     - name: Update & Install feeds
       working-directory: ./openwrt
       run: |
         ./scripts/feeds update -a
-        ./scripts/feeds install -a
         ./scripts/feeds install -a
     - name: Configuration Customization - N1-dokcer-simple
       env:
