@@ -67,6 +67,7 @@ jobs:
       run: |
         ./scripts/feeds update -a
         ./scripts/feeds install -a
+        ./scripts/feeds install -a
     - name: Configuration Customization - N1-dokcer-simple
       env:
         CONFIG_FILE: 'N1-dokcer-simple.config'
