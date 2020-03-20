@@ -1,25 +1,20 @@
-#=================================================
-# Description: Build OpenWrt using GitHub Actions
-# Lisence: MIT
-# Author: eSirPlayground
-# Youtube Channel: https://goo.gl/fvkdwm 
-#=================================================
 
-name: Build_x86_64
+
+name: X86-64_Operwrt_Sq
 
 on: 
   release:
     types: [published]
 
   #push:
-  #  branches: 
-  #    - master
+    #branches: 
+      #- master
 
-  #schedule:
-  #  - cron: 0 8 * * 5
+  schedule:
+    - cron: 0 21 * * *
   
-  #watch:
-  #  types: [started]
+  watch:
+    types: [started]
 
 jobs:
   build:
@@ -53,35 +48,32 @@ jobs:
           mysql* \
           php*
         sudo -E apt-get update
-        sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex node-uglify gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx-ucl libelf-dev autoconf automake libtool autopoint device-tree-compiler libuv-dev
+        sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex node-uglify gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx-ucl libelf-dev autoconf automake libtool autopoint device-tree-compiler libuv-dev g++-multilib linux-libc-dev
         sudo -E apt-get -y autoremove --purge
         sudo -E apt-get clean
-
     - name: Clone source code
       env: 
-        REPO_URL: https://github.com/coolsnowwolf/lede
-        REPO_BRANCH: master
-      run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
-
+        REPO_URL: https://github.com/Lienol/openwrt
+        REPO_BRANCH: dev-lean-lede
+      run: | 
+        git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+        git clone https://github.com/niceguy3-31/luci-app-koolproxy.git openwrt/package/luci-app-koolproxy
+        git clone https://github.com/tty228/luci-app-serverchan.git openwrt/package/luci-app-serverchan
+        git clone https://github.com/niceguy3-31/luci-app-koolproxyR.git openwrt/package/luci-app-koolproxyR
+        git clone https://github.com/niceguy3-31/backup.git smartdns
+        mv smartdns/* openwrt/package
     - name: Update & Install feeds
       working-directory: ./openwrt
       run: |
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         ./scripts/feeds install -a
-
-    #- name: Import external feeds
-    #  working-directory: ./openwrt
-    #  run: |
-    #    git clone https://github.com/Lienol/openwrt-package package/lienol
-    #    git clone "your_github_link" package/"your_folder_name"      
-
-    - name: Configuration Customization - Build_x86_64
+    - name: Configuration Customization - X86-64_Operwrt_Sq
       env:
         CONFIG_FILE: 'x86_64.config'
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
-        chmod +x ./customize.sh && ./customize.sh
+        sed -i 's/192.168.1.1/10.10.10.252/g' openwrt/package/base-files/files/bin/config_generate
         cd openwrt && make defconfig
         
     - name: Download package
@@ -90,15 +82,24 @@ jobs:
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-
     - name: Build firmware
       working-directory: ./openwrt
       run: |
         echo -e "$(nproc) thread build."
         make -j$(nproc) V=s
-
+    - name: Assemble artifact
+      run: |
+          rm -rf ./artifact/
+          mkdir -p ./artifact/
+          #find openwrt/bin/targets/ -name "*sysupgrade*bin*" | xargs -i mv -f {} ./artifact/
+          find openwrt/bin/targets/ -name "*combined*img*" | xargs -i mv -f {} ./artifact/
+          find openwrt/bin/targets/ -name "*combined*vmdk*" | xargs -i mv -f {} ./artifact/
+          #find openwrt/bin/targets/ -name "*rootfs*tar.gz*" | xargs -i mv -f {} ./artifact/
+          find openwrt/bin/targets/ -name "sha256sums" | xargs -i mv -f {} ./artifact/
+          find openwrt/bin/targets/ -name "config.seed" | xargs -i mv -f {} ./artifact/
+          ls -lh ./artifact/
     - name : Upload artifact
       uses: actions/upload-artifact@master
       with:
-        name: OpenWrt
-        path: openwrt/bin
+        name: OpenWrt-X86-64-Sq
+        path: ./artifact
